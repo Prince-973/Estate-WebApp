@@ -74,6 +74,22 @@ export default function Profile() {
     setformData({ ...formData, [e.target.id]: e.target.value });
   };
 
+  const handleListingDelete = async (listid) => {
+    try {
+      const res = await fetch(`/api/listing/delete/${listid}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        console.log(data.message);
+        return;
+      }
+      setShowListing((prev) => prev.filter((list) => list._id !== listid));
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -258,7 +274,12 @@ export default function Profile() {
                     <span>{listing.name}</span>
                   </Link>
                   <div className="flex flex-col items-center">
-                    <button className="text-red-700 uppercase">Delete</button>
+                    <button
+                      onClick={() => handleListingDelete(listing._id)}
+                      className="text-red-700 uppercase"
+                    >
+                      Delete
+                    </button>
                     <button className="text-green-700 uppercase">Edit</button>
                   </div>
                 </div>
