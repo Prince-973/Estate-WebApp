@@ -14,10 +14,13 @@ function CreateListing() {
     imageUrls: [],
   });
   const [imageUploadError, setimageUploadError] = useState(false);
+  const [uploading, setUploading] = useState(false);
   console.log(formData);
 
   const handleImageSubmit = (e) => {
     if (file.length > 0 && file.length + formData.imageUrls.length < 7) {
+      setUploading(true);
+      setimageUploadError(false);
       const promises = [];
       for (let i = 0; i < file.length; i++) {
         promises.push(storeImage(file[i]));
@@ -29,12 +32,15 @@ function CreateListing() {
             imageUrls: formData.imageUrls.concat(urls),
           });
           setimageUploadError(false);
+          setUploading(false);
         })
         .catch((error) => {
           setimageUploadError("Image Upload Fail (Max 2 mb Image)");
+          setUploading(false);
         });
     } else {
       setimageUploadError("You can upload a maximum of 6 images");
+      setUploading(false);
     }
   };
 
@@ -60,6 +66,13 @@ function CreateListing() {
           });
         }
       );
+    });
+  };
+
+  const handleRemoveImage = (i) => {
+    setFormData({
+      ...formData,
+      imageUrls: formData.imageUrls.filter((_, index) => index !== i),
     });
   };
 
@@ -183,24 +196,37 @@ function CreateListing() {
               multiple
             />
             <button
+              disabled={uploading}
               type="button"
               onClick={handleImageSubmit}
               className="border p-3 border-green-700 text-green-700 rounded uppercase  hover:shadow-lg disabled:opacity-80"
             >
-              Upload
+              {uploading ? "...Uploading" : "Upload"}
             </button>
           </div>
           <p className="text-red-700 ">
             {imageUploadError && imageUploadError}
           </p>
           {formData.imageUrls.length > 0 &&
-            formData.imageUrls.map((urls) => {
+            formData.imageUrls.map((urls, index) => {
               return (
-                <img
-                  src={urls}
-                  alt="listing image"
-                  className="w-40 h-40 object-cover rounded-lg"
-                />
+                <div
+                  key={urls}
+                  className="flex justify-between p-3 border items-center"
+                >
+                  <img
+                    src={urls}
+                    alt="listing image"
+                    className="w-20 h-20 object-contain rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75 "
+                  >
+                    Delete
+                  </button>
+                </div>
               );
             })}
           <button className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80">
