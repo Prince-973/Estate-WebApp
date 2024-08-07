@@ -4,6 +4,7 @@ const {
   updateUserinfo,
   deleteUser,
   getUserListing,
+  getUser,
 } = require("../controllers/user.controller");
 const verifyUser = require("../utiles/verifyUser");
 
@@ -13,5 +14,6 @@ router.get("/test", test);
 router.post("/update/:id", verifyUser, updateUserinfo);
 router.delete("/delete/:id", verifyUser, deleteUser);
 router.get("/listings/:id", verifyUser, getUserListing);
+router.get("/:id", verifyUser, getUser);
 
 module.exports = router;
