@@ -11,13 +11,13 @@ export default function Header() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set("search", searchTearm);
+    urlParams.set("searchTearm", searchTearm);
     const searchQuery = urlParams.toString();
     navigate(`/search?${searchQuery}`);
   };
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
-    const searchFromTearm = urlParams.get("search");
+    const searchFromTearm = urlParams.get("searchTearm");
     if (searchFromTearm) {
       setSearchTearm(searchFromTearm);
     }
