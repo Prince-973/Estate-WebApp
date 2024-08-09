@@ -6,6 +6,7 @@ const authRouter = require("./routes/auth.routes");
 const listingRouter = require("./routes/listing.router");
 const cookieParser = require("cookie-parser");
 const path = require("path");
+
 dotenv.config();
 
 const app = express();
@@ -13,6 +14,7 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
+
 mongoose
   .connect(process.env.MONGO)
   .then(() => {
@@ -26,10 +28,11 @@ app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
 
-app.use(express.static(path.join(__dirname, "/client/dist")));
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../client/build")));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
 });
 
 app.use((err, req, res, next) => {
@@ -41,6 +44,9 @@ app.use((err, req, res, next) => {
     message,
   });
 });
-app.listen(3000, () => {
-  console.log("Server runing on port 3000");
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
