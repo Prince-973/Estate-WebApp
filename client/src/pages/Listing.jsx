@@ -24,7 +24,7 @@ function Listing() {
   const params = useParams();
   const { currUser } = useSelector((state) => state.user);
   SwiperCore.use([Navigation]);
-  console.log(listing);
+  // console.log(listing);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -110,7 +110,7 @@ function Listing() {
               </p>
               {listing.offer && (
                 <p className="bg-green-900 w-full max-w-[150px] text-white text-center p-1 rounded-md">
-                  ₹{+listing.regularPrice - +listing.discountPrice}
+                  ₹{+listing.regularPrice - +listing.discountPrice} OFF
                 </p>
               )}
             </div>
