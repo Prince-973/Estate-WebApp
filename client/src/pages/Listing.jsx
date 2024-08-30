@@ -10,11 +10,11 @@ import {
   FaBath,
   FaBed,
   FaChair,
-  FaMapMarkedAlt,
   FaMapMarkerAlt,
   FaParking,
   FaShare,
 } from "react-icons/fa";
+
 function Listing() {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,6 @@ function Listing() {
   const params = useParams();
   const { currUser } = useSelector((state) => state.user);
   SwiperCore.use([Navigation]);
-  // console.log(listing);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -32,7 +31,7 @@ function Listing() {
         setLoading(true);
         const res = await fetch(`/api/listing/get/${params.listingid}`);
         const data = await res.json();
-        if (data.sucess === false) {
+        if (data.success === false) {
           setError(true);
           setLoading(false);
           return;
@@ -40,7 +39,6 @@ function Listing() {
         setListing(data);
         setLoading(false);
         setError(false);
-        return;
       } catch (error) {
         setError(true);
         setLoading(false);
@@ -49,11 +47,64 @@ function Listing() {
 
     fetchListing();
   }, [params.listingid]);
+
+  const handlePayment = async () => {
+    try {
+      const orderUrl = "/api/payment/orders"; // Replace with your backend URL
+      const response = await fetch(orderUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: listing.offer ? listing.discountPrice : listing.regularPrice,
+        }),
+      });
+      const data = await response.json();
+      initPayment(data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const initPayment = (data) => {
+    const options = {
+      key: "rzp_test_mkPOqzRkk3GQHh", // Replace with your Razorpay test/live key
+      amount: data.amount,
+      currency: data.currency,
+      name: listing.name,
+      description: "Test Transaction",
+      image: listing.imageUrls && listing.imageUrls[0], // Use the first image URL if available
+      order_id: data.id,
+      handler: async (response) => {
+        try {
+          const verifyUrl = "/api/payment/verify"; // Replace with your backend URL
+          const res = await fetch(verifyUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(response),
+          });
+          const result = await res.json();
+          console.log(result);
+        } catch (error) {
+          console.error(error);
+        }
+      },
+      theme: {
+        color: "#3399cc",
+      },
+    };
+    const rzp1 = new window.Razorpay(options);
+    rzp1.open();
+  };
+
   return (
     <main>
       {loading && <p className="text-center my-7 text-2xl">Loading...</p>}
       {error && (
-        <p className="text-center my-7 text-2xl">Somthing Went Wrong!</p>
+        <p className="text-center my-7 text-2xl">Something Went Wrong!</p>
       )}
       {listing && !loading && !error && (
         <>
@@ -91,16 +142,15 @@ function Listing() {
               Link copied!
             </p>
           )}
-
           <div className="flex flex-col max-w-4xl mx-auto p-3 my-7 gap-4">
             <p className="text-2xl font-semibold">
-              {listing.name} - ${" "}
+              {listing.name} - $
               {listing.offer
                 ? listing.discountPrice.toLocaleString("en-US")
                 : listing.regularPrice.toLocaleString("en-US")}
               {listing.type === "rent" && " / month"}
             </p>
-            <p className="flex items-center  gap-2 text-slate-600  text-sm">
+            <p className="flex items-center gap-2 text-slate-600 text-sm">
               <FaMapMarkerAlt className="text-green-700" />
               {listing.address}
             </p>
@@ -118,7 +168,7 @@ function Listing() {
               <span className="font-semibold text-black">Description - </span>
               {listing.description}
             </p>
-            <ul className=" text-green-900 font-semibold text-sm flex item-center gap-4 sm:gap-6 flex-wrap">
+            <ul className="text-green-900 font-semibold text-sm flex item-center gap-4 sm:gap-6 flex-wrap">
               <li className="flex items-center gap-1 whitespace-nowrap">
                 <FaBed className="text-lg" />
                 {listing.bedrooms > 1
@@ -137,7 +187,7 @@ function Listing() {
               </li>
               <li className="flex items-center gap-1 whitespace-nowrap">
                 <FaChair className="text-lg" />
-                {listing.furnished ? "Furnished" : "UnFurnished"}
+                {listing.furnished ? "Furnished" : "Unfurnished"}
               </li>
             </ul>
             {currUser && listing.userRef !== currUser._id && !contact && (
@@ -149,6 +199,13 @@ function Listing() {
               </button>
             )}
             {contact && <Contact listing={listing} />}
+            {/* Razorpay Payment Button */}
+            <button
+              onClick={handlePayment}
+              className="bg-green-700 text-white rounded-lg uppercase hover:opacity-95 p-3 mt-4"
+            >
+              Pay with Razorpay
+            </button>
           </div>
         </>
       )}

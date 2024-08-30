@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const userRouter = require("./routes/user.routes");
 const authRouter = require("./routes/auth.routes");
 const listingRouter = require("./routes/listing.router");
+const payment = require("./routes/payment.router");
 const cookieParser = require("cookie-parser");
 const path = require("path");
 dotenv.config();
@@ -26,6 +27,7 @@ mongoose
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
+app.use("/api/payment", payment);
 
 // Corrected path here
 app.use(express.static(path.join(__dirname, "../client/dist")));
