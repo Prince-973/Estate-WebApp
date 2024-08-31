@@ -41,7 +41,7 @@ app.use(express.static(path.join(__dirname, "../client/dist")));
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
 });
-app.post("/payment", async (req, res) => {
+app.post("/api/payment", async (req, res) => {
   const { token, listing } = req.body;
   const idempotencyKey = uuidv4();
 

@@ -58,7 +58,7 @@ function Listing() {
       "Content-Type": "application/json",
     };
 
-    return fetch("http://localhost:3000/payment", {
+    return fetch("/api/payment", {
       method: "POST",
       headers,
       body: JSON.stringify(body),
