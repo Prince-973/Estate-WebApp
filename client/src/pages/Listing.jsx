@@ -49,6 +49,7 @@ function Listing() {
     fetchListing();
   }, [params.listingid]);
 
+<<<<<<< HEAD
   const makePayment = (token) => {
     const body = {
       token,
@@ -77,6 +78,58 @@ function Listing() {
       .catch((error) => {
         console.error("Payment Error:", error);
       });
+=======
+  const handlePayment = async () => {
+    try {
+      const orderUrl = "/api/payment/orders"; // Replace with your backend URL
+      const response = await fetch(orderUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: listing.offer ? listing.discountPrice : listing.regularPrice,
+        }),
+      });
+      const data = await response.json();
+      initPayment(data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const initPayment = (data) => {
+    const options = {
+      key: "rzp_test_mkPOqzRkk3GQHh", // Replace with your Razorpay test/live key
+      amount: data.amount,
+      currency: data.currency,
+      name: listing.name,
+      description: "Test Transaction",
+      image: listing.imageUrls && listing.imageUrls[0], // Use the first image URL if available
+      order_id: data.id,
+      handler: async (response) => {
+        try {
+          const verifyUrl = "/api/payment/verify"; // Replace with your backend URL
+          const res = await fetch(verifyUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(response),
+          });
+          const result = await res.json();
+          console.log(result);
+        } catch (error) {
+          console.error(error);
+        }
+      },
+      theme: {
+        color: "#3399cc",
+      },
+    };
+    const rzp1 = new window.Razorpay(options);
+    rzp1.open();
+>>>>>>> d0e93f0dcfb6374be53cef5dd6a62aa86e79f9f1
   };
 
   return (
@@ -121,10 +174,13 @@ function Listing() {
               Link copied!
             </p>
           )}
-
           <div className="flex flex-col max-w-4xl mx-auto p-3 my-7 gap-4">
             <p className="text-2xl font-semibold">
+<<<<<<< HEAD
               {listing.name} - ₹
+=======
+              {listing.name} - $
+>>>>>>> d0e93f0dcfb6374be53cef5dd6a62aa86e79f9f1
               {listing.offer
                 ? listing.discountPrice.toLocaleString("en-US")
                 : listing.regularPrice.toLocaleString("en-US")}
@@ -148,7 +204,11 @@ function Listing() {
               <span className="font-semibold text-black">Description - </span>
               {listing.description}
             </p>
+<<<<<<< HEAD
             <ul className="text-green-900 font-semibold text-sm flex items-center gap-4 sm:gap-6 flex-wrap">
+=======
+            <ul className="text-green-900 font-semibold text-sm flex item-center gap-4 sm:gap-6 flex-wrap">
+>>>>>>> d0e93f0dcfb6374be53cef5dd6a62aa86e79f9f1
               <li className="flex items-center gap-1 whitespace-nowrap">
                 <FaBed className="text-lg" />
                 {listing.bedrooms > 1
@@ -179,6 +239,7 @@ function Listing() {
               </button>
             )}
             {contact && <Contact listing={listing} />}
+<<<<<<< HEAD
             {currUser && listing.userRef !== currUser._id && (
               <StripeCheckout
                 stripeKey="pk_test_51PtqvgSCd0d7DdNqOxteTcD9CXRpRCLUH7cdUxvq5OKouNdV0g6USSeF6gcyMkDDk8Q6QXcFVi69SdABn7Xbviej00nuF48vLx"
@@ -196,6 +257,15 @@ function Listing() {
                 </button>
               </StripeCheckout>
             )}
+=======
+            {/* Razorpay Payment Button */}
+            <button
+              onClick={handlePayment}
+              className="bg-green-700 text-white rounded-lg uppercase hover:opacity-95 p-3 mt-4"
+            >
+              Pay with Razorpay
+            </button>
+>>>>>>> d0e93f0dcfb6374be53cef5dd6a62aa86e79f9f1
           </div>
         </>
       )}

@@ -22,7 +22,11 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.5.1",
     "nodemon": "^3.1.4",
+<<<<<<< HEAD
     "stripe": "^16.9.0",
     "uuid": "^10.0.0"
+=======
+    "razorpay": "^2.9.4"
+>>>>>>> d0e93f0dcfb6374be53cef5dd6a62aa86e79f9f1
   }
 }
