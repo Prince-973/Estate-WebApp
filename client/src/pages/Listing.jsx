@@ -6,15 +6,16 @@ import { Navigation } from "swiper/modules";
 import "swiper/css/bundle";
 import { useSelector } from "react-redux";
 import Contact from "../component/Contact";
+import StripeCheckout from "react-stripe-checkout";
 import {
   FaBath,
   FaBed,
   FaChair,
-  FaMapMarkedAlt,
   FaMapMarkerAlt,
   FaParking,
   FaShare,
 } from "react-icons/fa";
+
 function Listing() {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -24,7 +25,6 @@ function Listing() {
   const params = useParams();
   const { currUser } = useSelector((state) => state.user);
   SwiperCore.use([Navigation]);
-  // console.log(listing);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -32,7 +32,7 @@ function Listing() {
         setLoading(true);
         const res = await fetch(`/api/listing/get/${params.listingid}`);
         const data = await res.json();
-        if (data.sucess === false) {
+        if (data.success === false) {
           setError(true);
           setLoading(false);
           return;
@@ -40,7 +40,6 @@ function Listing() {
         setListing(data);
         setLoading(false);
         setError(false);
-        return;
       } catch (error) {
         setError(true);
         setLoading(false);
@@ -49,11 +48,42 @@ function Listing() {
 
     fetchListing();
   }, [params.listingid]);
+
+  const makePayment = (token) => {
+    const body = {
+      token,
+      listing,
+    };
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    return fetch("http://localhost:3000/payment", {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    })
+      .then(async (res) => {
+        // Check if response is OK
+        if (!res.ok) {
+          // If not, try to read error message as text
+          const errorText = await res.text();
+          throw new Error(`Error in payment: ${errorText}`);
+        }
+
+        const result = await res.json();
+        console.log("Payment Result:", result);
+      })
+      .catch((error) => {
+        console.error("Payment Error:", error);
+      });
+  };
+
   return (
     <main>
       {loading && <p className="text-center my-7 text-2xl">Loading...</p>}
       {error && (
-        <p className="text-center my-7 text-2xl">Somthing Went Wrong!</p>
+        <p className="text-center my-7 text-2xl">Something Went Wrong!</p>
       )}
       {listing && !loading && !error && (
         <>
@@ -94,19 +124,19 @@ function Listing() {
 
           <div className="flex flex-col max-w-4xl mx-auto p-3 my-7 gap-4">
             <p className="text-2xl font-semibold">
-              {listing.name} - ${" "}
+              {listing.name} - ₹
               {listing.offer
                 ? listing.discountPrice.toLocaleString("en-US")
                 : listing.regularPrice.toLocaleString("en-US")}
               {listing.type === "rent" && " / month"}
             </p>
-            <p className="flex items-center  gap-2 text-slate-600  text-sm">
+            <p className="flex items-center gap-2 text-slate-600 text-sm">
               <FaMapMarkerAlt className="text-green-700" />
               {listing.address}
             </p>
             <div className="flex gap-4">
               <p className="bg-red-900 w-full max-w-[150px] text-white text-center p-1 rounded-md">
-                {listing.type === "rent" ? "For Rent" : "For sale"}
+                {listing.type === "rent" ? "For Rent" : "For Sale"}
               </p>
               {listing.offer && (
                 <p className="bg-green-900 w-full max-w-[150px] text-white text-center p-1 rounded-md">
@@ -118,7 +148,7 @@ function Listing() {
               <span className="font-semibold text-black">Description - </span>
               {listing.description}
             </p>
-            <ul className=" text-green-900 font-semibold text-sm flex item-center gap-4 sm:gap-6 flex-wrap">
+            <ul className="text-green-900 font-semibold text-sm flex items-center gap-4 sm:gap-6 flex-wrap">
               <li className="flex items-center gap-1 whitespace-nowrap">
                 <FaBed className="text-lg" />
                 {listing.bedrooms > 1
@@ -137,7 +167,7 @@ function Listing() {
               </li>
               <li className="flex items-center gap-1 whitespace-nowrap">
                 <FaChair className="text-lg" />
-                {listing.furnished ? "Furnished" : "UnFurnished"}
+                {listing.furnished ? "Furnished" : "Unfurnished"}
               </li>
             </ul>
             {currUser && listing.userRef !== currUser._id && !contact && (
@@ -145,10 +175,27 @@ function Listing() {
                 onClick={() => setContact(true)}
                 className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 p-3"
               >
-                Contact landlord
+                Contact Landlord
               </button>
             )}
             {contact && <Contact listing={listing} />}
+            {currUser && listing.userRef !== currUser._id && (
+              <StripeCheckout
+                stripeKey="pk_test_51PtqvgSCd0d7DdNqOxteTcD9CXRpRCLUH7cdUxvq5OKouNdV0g6USSeF6gcyMkDDk8Q6QXcFVi69SdABn7Xbviej00nuF48vLx"
+                token={makePayment}
+                name="Buy Property"
+                amount={
+                  listing.offer
+                    ? listing.discountPrice * 100
+                    : listing.regularPrice * 100
+                }
+                currency="INR"
+              >
+                <button className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 p-3 w-full">
+                  Pay Now
+                </button>
+              </StripeCheckout>
+            )}
           </div>
         </>
       )}
