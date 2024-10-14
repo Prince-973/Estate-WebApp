@@ -54,15 +54,16 @@ export default function Home() {
           place with ease
         </h1>
         <div className="text-gray-400 text-xs sm:text-sm">
-          Prince Estate is best way to find the your next perfect place to live
+          Scet Estate is best way to find the your next perfect place to live
           <br />
           We have a wide range of properties for you to choose from.
         </div>
         <Link
           to={"/search"}
-          className="text-xs sm:text-sm text-blue-800 font-bold hover:underline"
+          className="text-xsfont-bold bg-slt py-1 mb-2 px-3  hover:bg-blue-700 transition duration-200 ease-in-out bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
+          style={{ width: "fit-content", minWidth: "100px" }}
         >
-          Let's get started...
+          <button>Get Started</button>
         </Link>
       </div>
 
